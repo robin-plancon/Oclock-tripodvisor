@@ -13,6 +13,7 @@ const app = {
 
     NewsletterLinkElement: document.getElementById("newsletter-link"),
     NewsletterPopUpElement: document.querySelector(".newsletter"),
+    lastScrollPosition: 0,
     isNewsletterHidden: true,
 
     setElementListenable (element, eventListenerType) {
@@ -32,25 +33,35 @@ const app = {
         }
     },
 
+    setWindowsScrollListenable () {
+        document.addEventListener("scroll", app.handleWindowsScroll); 
+    },
+
+    handleWindowsScroll () {
+        if (window.scrollY - app.lastScrollPosition >= 300 && app.isNewsletterHidden) {
+            app.setNewsletterPopUpOpen(app.NewsletterPopUpElement);
+            app.lastScrollPosition = window.scrollY;
+            return;
+        }
+        if (!app.isNewsletterHidden) {
+            app.lastScrollPosition = window.scrollY;
+        }
+    },
+
     setNewsletterPopUpOpen (element) {
         element.classList.remove("newsletter--hidden");
+        app.isNewsletterHidden = false;
     },
 
     setNewsletterPopUpClose (element) {
         element.classList.add("newsletter--hidden");
-    },
-
-    handleNewsletterClosingButtonClick () {
-
-    },
-
-    setWindowsScrollListenable () {
-
+        app.isNewsletterHidden = true;
     },
 
     init () {
         app.setElementListenable(app.NewsletterLinkElement, "click");
-        app.setElementListenable(app.NewsletterPopUpElement.querySelector(".newsletter__close"), "click")
+        app.setElementListenable(app.NewsletterPopUpElement.querySelector(".newsletter__close"), "click");
+        app.setWindowsScrollListenable();
         app.setNewsletterPopUpClose(app.NewsletterPopUpElement);
     },
 

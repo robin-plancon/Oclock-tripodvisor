@@ -8,6 +8,18 @@
 
     bonus
     Pour gerer les themes: ajouter la class sur le body
+
+    #Pour le slider
+    1. Il faut ajouter les img entre les deux boutons.
+    2. Ensuite ajouter une div avec class="slider__nav"
+    3. Creer autant de div avec class="slider__nav-item" qu'il y a d'img 
+    4. Rendre le tout cliquable et gerer le clique
+
+    #Pour les avis
+    1. Creer un parametre contenant un tableau avec les types d'avis que l'on veut afficher
+    2. Rendre les radio boutons ecoutable
+    3. Gerer le changement de valeur et le rafraichissement des avis
+    
 */
 
 const app = {

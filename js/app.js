@@ -34,6 +34,14 @@ const app = {
     isNewsletterHidden: true,
     isDarkModeTheme: false,
     currentColorTheme: "",
+    sliderPhotographyNames: [
+        "canyon",
+        "city",
+        "nature",
+        "ocean",
+        "road",
+        "ski",
+    ],
     forbiddenDomains: [
         "@yopmail.com",
         "@yopmail.fr",
@@ -47,6 +55,8 @@ const app = {
         "@hide.biz.st",
         "@mymail.infos.st",
     ],
+    currentSliderPhotography: 0,
+    reviewsFilter: [],
 
     setElementListenable(element, eventListenerType, eventHandler) {
         element.addEventListener(eventListenerType, eventHandler);
@@ -140,7 +150,7 @@ const app = {
     handleChangeThemeColorClick(Event) {
         const target = Event.target;
         const bodyElement = document.getElementsByTagName("body")[0];
-        if(app.currentColorTheme === ""){
+        if (app.currentColorTheme === "") {
             bodyElement.classList.add(target.id);
             app.currentColorTheme = target.id;
             return;
@@ -151,8 +161,133 @@ const app = {
 
     initializeColorThemeButtons() {
         colorButtons = app.switchColorsElement.children;
-        for(colorButton of colorButtons) {
-            app.setElementListenable(colorButton, "click", this.handleChangeThemeColorClick);
+        for (colorButton of colorButtons) {
+            app.setElementListenable(
+                colorButton,
+                "click",
+                this.handleChangeThemeColorClick
+            );
+        }
+    },
+
+    // slider part
+
+    initializeSliderPhotographies() {
+        const sliderElement = document.querySelector(".slider");
+        const sliderNavElement = document.querySelector(".slider__nav");
+        app.sliderPhotographyNames.map((sliderPhotographyName, index) => {
+            const imageElement = document.createElement("img");
+            imageElement.setAttribute(
+                "src",
+                `./img/${sliderPhotographyName}.jpg`
+            );
+            imageElement.setAttribute("id", `slider-${sliderPhotographyName}`);
+            imageElement.classList.add("slider__img");
+            if (index === 0) {
+                imageElement.classList.add("slider__img--current");
+            }
+            sliderElement.appendChild(imageElement);
+            const sliderNavItemElement = document.createElement("div");
+            sliderNavItemElement.setAttribute(
+                "id",
+                `slider-nav-${sliderPhotographyName}`
+            );
+            sliderNavItemElement.classList.add("slider__nav-item");
+            sliderNavElement.appendChild(sliderNavItemElement);
+        });
+    },
+
+    InitializeSliderButtons() {
+        sliderButtons = document.querySelectorAll(".slider__btn");
+        for (sliderButton of sliderButtons) {
+            app.setElementListenable(
+                sliderButton,
+                "click",
+                app.sliderButtonClickHandler
+            );
+        }
+    },
+
+    sliderButtonClickHandler(Event) {
+        const target = Event.target;
+        const sliderImagesElement = document.querySelectorAll(".slider__img");
+        if (target.id === "slider-button-previous") {
+            sliderImagesElement[app.currentSliderPhotography].classList.remove(
+                "slider__img--current"
+            );
+            if (app.currentSliderPhotography === 0) {
+                app.currentSliderPhotography =
+                    (sliderImagesElement.length - 1) %
+                    sliderImagesElement.length;
+            } else {
+                app.currentSliderPhotography -= 1;
+            }
+            sliderImagesElement[app.currentSliderPhotography].classList.add(
+                "slider__img--current"
+            );
+            return;
+        }
+        if (target.id === "slider-button-next") {
+            sliderImagesElement[app.currentSliderPhotography].classList.remove(
+                "slider__img--current"
+            );
+            if (
+                app.currentSliderPhotography ===
+                sliderImagesElement.length - 1
+            ) {
+                app.currentSliderPhotography = 0;
+            } else {
+                app.currentSliderPhotography += 1;
+            }
+            sliderImagesElement[app.currentSliderPhotography].classList.add(
+                "slider__img--current"
+            );
+        }
+    },
+
+    // Reviews part
+
+    initializeReviewsFiltersButtons() {
+        const reviewsFilterCheckboxes = document.querySelectorAll(
+            "input[name='rating']"
+        );
+        for (reviewsFilterCheckbox of reviewsFilterCheckboxes) {
+            app.reviewsFilter.push(reviewsFilterCheckbox.value);
+            app.setElementListenable(
+                reviewsFilterCheckbox,
+                "change",
+                app.reviewsFilterCheckboxesHandler
+            );
+        }
+    },
+
+    reviewsFilterCheckboxesHandler(Event) {
+        const target = Event.target;
+        const reviewsElements = document.querySelectorAll(".review");
+        if (target.checked) {
+            app.reviewsFilter.push(target.value);
+        } else {
+            app.reviewsFilter.splice(
+                app.reviewsFilter.indexOf(target.value),
+                1
+            );
+        }
+        for (reviewElement of reviewsElements) {
+            if (
+                !app.reviewsFilter.includes(
+                    reviewElement.getAttribute("data-rating")
+                )
+            ) {
+                reviewElement.classList.add("review--hidden");
+            }
+            if (
+                app.reviewsFilter.includes(
+                    reviewElement.getAttribute("data-rating")
+                ) &&
+                reviewElement.classList.contains("review--hidden")
+            ) {
+                reviewElement.classList.remove("review--hidden");
+            }
         }
     },
 
@@ -180,6 +315,9 @@ const app = {
             app.handleChangeThemeClick
         );
         app.initializeColorThemeButtons();
+        app.initializeSliderPhotographies();
+        app.InitializeSliderButtons();
+        app.initializeReviewsFiltersButtons();
     },
 };
 
